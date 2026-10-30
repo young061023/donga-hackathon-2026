@@ -252,11 +252,15 @@
   }
 
   const pendingLeaderProposals = new Set();
+  const pendingRoleAllocations = new Set();
   let leaderProposalError = "";
   let leaderProposalErrorTimer;
   function updateLeaderProposalStatus() {
     const status = $("#leaderProposalStatus");
-    if (pendingLeaderProposals.size) {
+    if (pendingRoleAllocations.size) {
+      status.textContent = "✳ 모아가 팀원별 역할을 나누고 있어요…";
+      status.hidden = false;
+    } else if (pendingLeaderProposals.size) {
       status.textContent = "✳ 모아가 최신 대화에 답을 준비하고 있어요…";
       status.hidden = false;
     } else if (leaderProposalError) {
@@ -283,6 +287,21 @@
       updateLeaderProposalStatus();
     }
   }
+  async function requestRoleAllocation(payload) {
+    pendingRoleAllocations.add(payload.messageId);
+    updateLeaderProposalStatus();
+    try {
+      const result = await api("/api/role-allocation", { method: "POST", body: JSON.stringify(payload) });
+      if (!result.skipped && state.teamId === payload.teamId) {
+        await loadWorkspace();
+        if (result.taskCount) toast(`AI가 역할을 나눠 할 일 ${result.taskCount}개를 등록했어요.`);
+      }
+    } catch (error) { toast(error.message); }
+    finally {
+      pendingRoleAllocations.delete(payload.messageId);
+      updateLeaderProposalStatus();
+    }
+  }
 
   $("#composeForm").addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -299,9 +318,13 @@
         const known = new Set(state.workspace.messages.map(message => message.id));
         state.workspace.messages.push(...result.messages.filter(message => !known.has(message.id)));
         renderMessages();
-        if (result.taskAdded) await loadWorkspace();
+        if (result.taskAdded || result.pollCreated) await loadWorkspace();
       } else {
         await loadWorkspace();
+      }
+      if (result.pollCreated) toast("내일 모임 시간 투표를 만들었어요.");
+      if (result.roleAllocationRequested && result.messageId) {
+        void requestRoleAllocation({ teamId, channelId, messageId: result.messageId });
       }
       if (result.needsLeaderProposal && result.messageId) {
         void requestLeaderProposal({ teamId, channelId, messageId: result.messageId });

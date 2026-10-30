@@ -1,6 +1,6 @@
 import { and, asc, eq } from "drizzle-orm";
 import { apiError, isTeamMember, newId, persistIdentity, readIdentity } from "../_lib";
-import { channels, messages, tasks, teamMembers, users } from "../../../db/schema";
+import { channels, messages, pollOptions, polls, tasks, teamMembers, users } from "../../../db/schema";
 
 const commitmentWords = [
   "하겠습니다", "하겠어요", "할게요", "할게", "해보겠습니다", "해볼게요", "해볼게",
@@ -53,6 +53,29 @@ function extractTask(body: string, identity: { id: string }, members: Array<{ id
   if (taskText.length < 2) return null;
 
   return { title: taskText.slice(0, 180), assigneeId, assigneeName, dueText };
+}
+
+function mentionsTomorrowMeeting(body: string) {
+  return /내일/.test(body) && /(?:만나|모임|회의|모이)/.test(body) &&
+    !/(?:안|못|아니|말고)\s*(?:만나|모임|회의|모이)/.test(body);
+}
+
+function tomorrowInSeoul() {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit",
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+  const tomorrow = new Date(Date.UTC(Number(values.year), Number(values.month) - 1, Number(values.day) + 1));
+  return {
+    year: tomorrow.getUTCFullYear(),
+    month: tomorrow.getUTCMonth() + 1,
+    day: tomorrow.getUTCDate(),
+    weekday: new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", weekday: "short" }).format(tomorrow),
+  };
+}
+
+function isRoleSplitRequest(body: string) {
+  return /(?:역할\s*(?:분담|나누|나눠)|역할을\s*(?:나누|나눠)|업무(?:를)?\s*(?:나누|나눠)|할\s*일(?:을)?\s*(?:나누|나눠)|분담해|분배해|각자\s*맡|담당(?:자)?\s*(?:정해|나눠))/.test(body);
 }
 
 export async function POST(request: Request) {
@@ -116,6 +139,24 @@ export async function POST(request: Request) {
         sourceMessageId: messageId,
       });
     }
+
+    let pollCreated = false;
+    if (mentionsTomorrowMeeting(body)) {
+      const date = tomorrowInSeoul();
+      const dateLabel = `${date.year}년 ${date.month}월 ${date.day}일 (${date.weekday})`;
+      const title = `${dateLabel} 모임 가능한 시간은?`;
+      const [existingPoll] = await db.select({ id: polls.id }).from(polls).where(and(
+        eq(polls.teamId, teamId), eq(polls.title, title), eq(polls.status, "open"),
+      )).limit(1);
+      if (!existingPoll) {
+        const pollId = newId("poll");
+        await db.insert(polls).values({ id: pollId, teamId, title, createdBy: identity.id });
+        await db.insert(pollOptions).values(["오전 10시", "오후 2시", "오후 7시"].map((time, position) => ({
+          id: newId("opt"), pollId, label: `${dateLabel} ${time}`, position,
+        })));
+        pollCreated = true;
+      }
+    }
     let assistantId: string | null = null;
     if (inferredTask) {
       assistantId = newId("msg");
@@ -128,7 +169,8 @@ export async function POST(request: Request) {
     const savedAssistantMessage = assistantId ? await db.select({ id: messages.id, channelId: messages.channelId, authorId: messages.authorId, authorType: messages.authorType, sourceMessageId: messages.sourceMessageId, body: messages.body, createdAt: messages.createdAt, authorName: users.displayName })
       .from(messages).leftJoin(users, eq(users.id, messages.authorId)).where(eq(messages.id, assistantId)).limit(1).then(rows => rows[0]) : null;
 
-    return Response.json({ messages: savedAssistantMessage ? [savedUserMessage, savedAssistantMessage] : [savedUserMessage], taskAdded: Boolean(inferredTask), needsLeaderProposal: !inferredTask, messageId }, { status: 201, headers: { "Cache-Control": "no-store" } });
+    const roleAllocationRequested = isRoleSplitRequest(body);
+    return Response.json({ messages: savedAssistantMessage ? [savedUserMessage, savedAssistantMessage] : [savedUserMessage], taskAdded: Boolean(inferredTask), pollCreated, roleAllocationRequested, needsLeaderProposal: !inferredTask && !roleAllocationRequested, messageId }, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("message create failed", error);
     return apiError("메시지를 저장하지 못했습니다.", 500);
