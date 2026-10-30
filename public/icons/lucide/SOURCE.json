@@ -1,0 +1,32 @@
+{
+  "library": "lucide-static",
+  "version": "1.65.0",
+  "source": "https://cdn.jsdelivr.net/npm/lucide-static@1.65.0/sprite.svg",
+  "license": "https://cdn.jsdelivr.net/npm/lucide-static@1.65.0/LICENSE",
+  "sha256": "c0b767a94b27978f4be6218ad24860eef5796d159ba530c60efa08c58665c424",
+  "aliases": {
+    "home": "house",
+    "send": "send",
+    "calendar": "calendar-days",
+    "tasks": "calendar-check-2",
+    "star": "network",
+    "user": "circle-user-round",
+    "plus": "plus",
+    "minus": "minus",
+    "search": "search",
+    "chevron-down": "chevron-down",
+    "close": "x",
+    "check-square": "square-check",
+    "plus-square": "square-plus",
+    "document": "file-text",
+    "spark": "sparkles",
+    "smile": "face-slightly-smiling",
+    "upload": "paperclip",
+    "arrow": "arrow-up-right",
+    "check": "check",
+    "logout": "log-out",
+    "menu": "menu",
+    "fit": "maximize",
+    "link": "paperclip"
+  }
+}

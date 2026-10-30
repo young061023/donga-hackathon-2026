@@ -1,0 +1,215 @@
+/* Desktop density. Existing mobile layout, icons and all behavior are retained. */
+@media(min-width:701px){
+  body{font-size:14px}
+  .app-shell{--rail:64px;--sidebar:260px;padding:12px;gap:10px;max-width:none}
+  .rail{border-radius:18px;padding:14px 0;box-shadow:0 1px 3px #24351b14}
+  .rail-button{width:40px;height:40px;border-radius:11px}
+  .rail-button .icon.lucide{width:22px;height:22px;stroke-width:1.7}
+  .rail-button.active:before{left:-12px;width:3px;height:20px;top:10px;bottom:auto;border-radius:0 3px 3px 0}
+  .rail-main{gap:13px;margin-top:37px}
+  .presence-dot{right:7px;bottom:6px;width:7px;height:7px}
+  .rail-count{top:0;right:0;min-width:15px;height:15px;font-size:9px;line-height:11px}
+  .workspace-frame{border:1px solid #e6eadf;border-radius:15px;box-shadow:0 2px 6px #30401c08}
+  .side{padding:18px 14px 15px}
+  .sidebar-title{gap:8px}
+  .sidebar-title h1{font-size:21px;letter-spacing:-.6px;line-height:1.4;font-weight:700}
+  .square-button{width:30px;height:30px;border-radius:8px}
+  .square-button .icon{width:18px;height:18px}
+  .sidebar-title>.lime-outline{width:23px;height:23px;border-radius:6px}
+  .sidebar-title>.lime-outline .icon{width:15px;height:15px}
+  .search-field{height:35px;margin:17px 0 16px;padding:0 11px;gap:8px;border-radius:9px;border-color:#d6e5b3}
+  .search-field input{font-size:13px;line-height:1.5}
+  .search-field .icon{width:16px;height:16px;stroke-width:1.7}
+  .search-field input::placeholder{color:#a1ad92}
+  .side-divider{background:#e1e7d7}
+  .team-picker{margin:10px 0 9px;padding:4px 6px;font-size:11px;color:#929e81;min-height:24px}
+  #workspaceName{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .room-list{flex:0 1 auto;min-height:0;max-height:44%;gap:6px;padding:4px 0 6px}
+  .room-row{min-height:61px;padding:11px 10px;gap:10px;border-radius:10px}
+  .room-row.active{box-shadow:0 1px 2px #25351812;border-color:#c8dd95;background:#f0f5e3}
+  .room-avatar{width:30px;height:30px;font-size:11px}
+  .room-row strong{font-size:13px;line-height:1.5;font-weight:600;letter-spacing:-.25px}
+  .room-row small{font-size:10px;line-height:1.5;margin-top:4px;color:#95a184}
+  .room-row time{display:block;font-size:9px;margin-top:3px;color:#9ba68d}
+  .sidebar-tasks{flex:1;max-height:none;min-height:160px;margin:23px 0 0}
+  .tasks-heading{margin:13px 0 12px}
+  .tasks-heading>button:first-child{font-size:13px;gap:7px;color:#7f8d6b}
+  .tasks-heading .icon{width:16px;height:16px}
+  .tasks-heading small{font-size:10px;font-weight:400;color:#9baa88}
+  .tasks-heading>.square-button{width:24px;height:24px;color:#879c65}
+  .task-list{flex:1;padding:0 1px}
+  .task{grid-template-columns:16px minmax(0,1fr) auto;column-gap:7px;margin-bottom:12px}
+  .task-check{width:16px;height:16px;margin-top:2px;border-color:#b8c5a0;border-radius:4px}
+  .task-check:checked:after{width:12px;height:12px}
+  .task-text{font-size:12px;line-height:1.65;color:#536445}
+  .task-owner{font-size:10px;max-width:48px;margin-top:4px;color:#9dab89}
+  .task-due{font-size:10px;margin-top:3px;color:#96a67e}
+  .task-source{font-size:9px;padding:0}
+  .task-progress{font-size:10px;padding:8px 3px 0;color:#9aa88a}
+  .empty-list{font-size:12px;line-height:1.8;padding:15px 5px}
+
+  .channel-head{height:78px;min-height:78px;padding:15px 24px;gap:14px}
+  .channel-heading{gap:9px}
+  .channel-heading h2{font-size:22px;font-weight:600;line-height:1.3;letter-spacing:-.5px;color:#283223}
+  .channel-subtitle{font-size:11px;font-weight:400;margin:5px 0 0;gap:6px;color:#98a58a}
+  .channel-subtitle select{font-size:11px;max-width:200px;padding-right:16px;color:#8c9d76}
+  .subtitle-dot{font-size:9px;color:#bac6a7}
+  .header-actions{gap:9px}
+  .header-actions .member-button{display:block;margin-left:0}
+  .avatar-stack{padding-left:9px}
+  .avatar-stack span{width:26px;height:26px;margin-left:-9px;font-size:9px}
+  .outline-button,.primary-button,.header-actions .outline-button{min-height:33px;font-size:12px;line-height:1.5;padding:7px 11px;border-radius:8px;gap:6px}
+  .outline-button{color:#83916f;border-color:#d8e1c9}
+  .outline-button .icon,.header-actions .outline-button .icon{width:16px;height:16px}
+  .header-search{width:27px;height:29px;margin:0;color:#94a47d}
+  .header-search .icon{width:17px;height:17px}
+  .notice{font-size:10px;line-height:1.7;margin:9px 24px 0;gap:7px}
+  .chat-scroll{padding:23px 28px 16px}
+  #messageList{width:100%;max-width:1120px;margin:0 auto}
+  .msg{gap:10px;margin:0 0 19px;padding-left:0}
+  .msg .avatar{width:32px;height:32px;font-size:11px;margin-top:0}
+  .msg.ai .avatar .icon.lucide{width:21px;height:21px;stroke-width:1.7}
+  .msgbody{width:auto;max-width:min(720px,calc(100% - 44px))}
+  .msgmeta{font-size:10px;gap:9px;min-height:18px;margin:0 0 5px 2px;color:#a0ad92;line-height:1.5}
+  .msgmeta strong{font-size:12px;font-weight:600;color:#687d51}
+  .bubble{min-width:0;max-width:100%;padding:10px 14px;font-size:14px;line-height:1.75;letter-spacing:-.2px;border-radius:3px 11px 11px 11px;box-shadow:0 1px 2px #24351b16;color:#45553a}
+  .msg.me{gap:10px;margin-top:0;padding-left:50px}
+  .msg.me .bubble{min-width:0;border-radius:11px 3px 11px 11px;box-shadow:none;color:#52663b}
+  .msg.me .msgbody{width:auto;max-width:min(720px,calc(100% - 44px))}
+  .quote-link{font-size:10px;line-height:1.7;margin-top:7px;padding:4px 8px;color:#93a57a}
+  .attachment-link{font-size:12px;padding:8px 10px;border-radius:8px;margin-top:7px}
+  .attachment-link .icon{width:15px;height:15px}
+  .attachment-preview{max-width:min(300px,100%);max-height:210px;border-radius:9px}
+  .empty-chat,.loading-message{font-size:14px;line-height:1.9;padding:45px 15px}
+  .empty-chat .icon{width:32px;height:32px;margin-bottom:13px}
+  .compose{padding:11px 28px 14px}
+  .compose-box{max-width:1120px;margin:0 auto;min-height:54px;padding:8px 10px 8px 13px;gap:11px;border-radius:13px;border-color:#d0dfa9;box-shadow:0 2px 5px #30401c08}
+  .compose-tools{gap:4px}
+  .compose-tools .square-button{width:28px;height:28px;border-radius:7px}
+  .compose-tools .icon.lucide{width:19px;height:19px;stroke-width:1.7}
+  .compose textarea{min-height:30px;max-height:96px;font-size:14px;line-height:1.8;padding:2px 0}
+  .compose textarea::placeholder{color:#a1ae8e}
+  .send-button{height:34px;width:34px;border-radius:9px}
+  .send-button .icon.lucide{height:21px;width:21px;stroke-width:1.7}
+  .compose-hint{max-width:1110px;margin:8px auto 0;padding:0 3px;font-size:9px;gap:12px;color:#a0ae8d}
+  .compose-hint button{font-size:10px;color:#92a776}
+  .compose-hint .sync-label{display:block}
+
+  .pinned-polls{margin:11px 24px 0;max-height:40%}
+  .poll-card{border-radius:11px;padding:12px 17px;box-shadow:0 1px 3px #354b1710}
+  .poll-header{gap:12px;min-height:35px;border-radius:7px}
+  .poll-icon{width:34px;height:34px}
+  .poll-icon .icon.lucide{height:20px;width:20px;stroke-width:1.7}
+  .poll-heading h3{font-size:14px;line-height:1.5;font-weight:600}
+  .poll-badge{font-size:9px;padding:2px 10px;margin-bottom:4px;line-height:1.5}
+  .poll-header>.icon{height:20px;width:20px}
+  .poll-options{gap:8px;margin-top:14px}
+  .poll-choice{min-height:36px;border-radius:8px;padding:8px 13px;font-size:13px;line-height:1.5;gap:9px;border-color:#d4e3af}
+  .poll-choice.voted:before{height:15px;width:15px}
+  .vote-count{font-size:11px}
+  .poll-footer{font-size:11px;gap:9px;border-color:#e0e8d3;padding-top:10px;margin-top:11px}
+  .poll-footer .avatar-stack span{width:25px;height:25px;font-size:8px}
+  .poll-results{font-size:11px;padding:4px 5px}
+  .poll-more{font-size:10px}
+  .user-popover{left:61px;bottom:74px;width:306px;border-radius:12px;padding:11px 13px;font-size:12px;box-shadow:0 5px 22px #26391315}
+  .user-popover header{font-size:13px;padding-bottom:10px;border-color:#dce4ce}
+  .work-status-row{min-height:42px;border-color:#dce4ce}
+  .work-status-row select{font-size:10px;padding:4px 5px;max-width:135px}
+  .signout-link{font-size:13px;padding-top:10px}
+  .signout-link .icon{width:16px;height:16px}
+  .toast{bottom:22px;font-size:12px;padding:10px 16px;border-radius:10px}
+
+  .modal-back{padding:30px;background:#16201266}
+  .modal{width:min(600px,100%);max-height:calc(100dvh - 60px);border-radius:14px;padding:24px}
+  .modal h2{font-size:21px;line-height:1.4;letter-spacing:-.4px}
+  .modal-x{width:27px;height:27px}
+  .modal-x .icon{width:19px;height:19px}
+  .modal #modalIntro{font-size:12px}
+  .modal-actions{padding-top:21px;gap:8px}
+  .modal-actions .outline-button,.modal-actions .primary-button{font-size:13px;min-height:34px;padding:7px 15px;border-radius:8px}
+  .modal[data-kind=summary]{width:min(680px,100%);min-height:min(420px,calc(100dvh - 60px));padding:27px 30px 23px}
+  .modal[data-kind=summary] .modal-body{margin-top:16px}
+  .summary-block{padding:12px 0}
+  .summary-block h3{font-size:13px;margin-bottom:6px}
+  .summary-block p,.summary-block li{font-size:13px;line-height:1.85}
+  .summary-source{font-size:10px;margin-top:5px}
+  .modal[data-kind=task]{width:min(570px,100%);min-height:180px;padding:22px 24px 29px}
+  .modal[data-kind=task] .modal-body{padding-top:29px}
+  .add-task{gap:8px}
+  .field{min-height:41px;border-radius:9px;padding:10px 12px;font-size:14px;line-height:1.5}
+  .add-task input{min-height:43px;font-size:14px}
+  .add-task select{max-width:125px;font-size:14px;min-height:43px;padding:8px 10px;border-radius:9px}
+  .add-task button{height:35px;width:35px;border-radius:8px}
+  .add-task button .icon{height:21px;width:21px}
+  .modal[data-kind=poll]{width:min(480px,100%);padding:22px 25px 24px}
+  .modal[data-kind=poll] .modal-body{padding-top:23px;overflow:auto}
+  .form-label{font-size:12px;margin-bottom:8px}
+  .form-section{margin-bottom:18px}
+  .poll-create-form .field{font-size:14px;padding:10px 13px}
+  .options-label small{font-size:10px}
+  .poll-create-options{gap:11px}
+  .poll-option-input{min-height:43px;padding:5px 8px;border-radius:9px;gap:10px}
+  .option-number{height:25px;width:25px;font-size:13px}
+  .poll-option-input input{font-size:13px;padding:4px 0}
+  .poll-option-input .square-button{width:22px;height:25px}
+  .poll-option-input .icon{height:15px;width:15px}
+  .add-poll-option{min-height:38px;font-size:13px;margin-top:12px;border-radius:9px}
+  .poll-create-footer{padding-top:24px}
+  .poll-create-footer .outline-button{font-size:13px;min-height:35px;padding:8px 19px;border-radius:9px}
+  .modal-hint{font-size:11px;line-height:1.8}
+  .team-list-modal{margin-top:19px;gap:7px}
+  .team-list-item{font-size:13px;padding:12px;border-radius:9px}
+  .create-team-form{margin-top:18px}
+  .create-team-form .field,.create-team-form button{font-size:13px}
+  .member-row{padding:13px 0;gap:11px}
+  .member-avatar{height:33px;width:33px;font-size:12px}
+  .member-row strong{font-size:13px}
+  .member-row small{font-size:10px}
+  .search-modal-form .field{font-size:14px}
+  .poll-directory-item{margin-top:16px;padding:13px}
+  .poll-directory-item h3{font-size:14px;margin-bottom:11px}
+  .poll-directory-item .poll-choice{font-size:13px;min-height:36px;padding:8px 12px}
+  .poll-result-title{font-size:13px}
+  .poll-result-voters{font-size:11px}
+  .brainstorm-top{font-size:11px;padding:13px 21px}
+  .brainstorm-top .text-button{font-size:11px}
+  .map-node.root strong{font-size:17px}
+  .map-node.group strong{font-size:14px}
+  .mindmap-toolbar{padding:10px 18px;gap:12px;font-size:11px}
+  .mindmap-toolbar p{font-size:11px}
+  .map-controls button{height:27px;width:28px}
+  .map-controls span{font-size:10px}
+}
+@media(min-width:701px) and (max-width:1200px){
+  .app-shell{--rail:60px;--sidebar:240px;padding:10px;gap:9px}
+  .rail-button.active:before{left:-10px}
+  .side{padding-left:12px;padding-right:12px}
+  .channel-head{padding-left:20px;padding-right:19px}
+  .channel-heading h2{font-size:21px}
+  .header-actions{gap:7px}
+  .chat-scroll{padding-left:22px;padding-right:22px}
+  .compose{padding-left:22px;padding-right:22px}
+  .pinned-polls{margin-left:18px;margin-right:18px}
+  .compose-hint .sync-label{display:none}
+}
+@media(min-width:701px) and (max-width:1000px){
+  .app-shell{--rail:56px;--sidebar:220px;padding:9px;gap:8px}
+  .rail-button{height:38px;width:38px}
+  .rail-button.active:before{left:-9px;top:9px}
+  .rail-button .icon.lucide{height:21px;width:21px}
+  .sidebar-title h1{font-size:19px}
+  .room-row{padding-left:8px;padding-right:8px;gap:8px}
+  .room-row time{display:none}
+  .channel-head{height:73px;min-height:73px;padding-left:18px;padding-right:15px;gap:9px}
+  .channel-heading h2{font-size:20px}
+  .header-actions .member-button{display:none}
+  .header-actions{gap:6px}
+  .header-actions .outline-button{padding:6px 8px;font-size:11px;gap:4px}
+  .header-actions .outline-button .icon{height:15px;width:15px}
+  .header-search{height:27px;width:23px}
+  .channel-subtitle select{max-width:120px;font-size:10px}
+  .chat-scroll{padding-left:18px;padding-right:18px}
+  .compose{padding-left:17px;padding-right:17px}
+  .pinned-polls{margin-left:13px;margin-right:13px}
+  .msg.me{padding-left:25px}
+}

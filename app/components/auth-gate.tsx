@@ -1,83 +1,50 @@
 import { chatGPTSignInPath } from "../chatgpt-auth";
 
-export function AuthGate({
-  returnTo,
-  invitation = false,
-}: {
-  returnTo: string;
-  invitation?: boolean;
-}) {
+function EntryIcon({ name, className = "" }: { name: string; className?: string }) {
+  return <svg className={`entry-icon ${className}`} width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href={`/icons/lucide/sprite.svg?v=1.65.0#${name}`} /></svg>;
+}
+
+export function AuthGate({ returnTo, invitation = false }: { returnTo: string; invitation?: boolean }) {
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f4f4ee] px-5 py-10 text-[#20251e]">
-      <div aria-hidden="true" className="pointer-events-none absolute -left-36 -top-40 h-[26rem] w-[26rem] rounded-full bg-[#dce7c9] blur-3xl" />
-      <div aria-hidden="true" className="pointer-events-none absolute -bottom-48 -right-28 h-[32rem] w-[32rem] rounded-full bg-[#e8ded0] blur-3xl" />
+    <>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" />
+      <link rel="stylesheet" href="/entry.css?v=teamplay-1" />
+      <main className="entry-page entry-login">
+        <header className="entry-header">
+          <a className="entry-brand" href="/" aria-label="팀플이냐 팀킬이냐 홈"><span className="entry-brand-mark"><EntryIcon name="network" /></span><span>팀플이냐 팀킬이냐</span></a>
+          <a className="entry-header-link" href="/landing.html">어떤 서비스인가요? <EntryIcon name="arrow-up-right" /></a>
+        </header>
 
-      <div className="relative grid w-full max-w-5xl overflow-hidden rounded-[2rem] border border-[#e3e3d8] bg-[#fffefa] shadow-[0_28px_90px_-44px_rgba(40,48,34,.35)] md:min-h-[590px] md:grid-cols-[1.04fr_.96fr]">
-        <section className="flex flex-col justify-between bg-[#252c22] p-8 text-white sm:p-12">
-          <a href="/" className="flex w-fit items-center gap-3" aria-label="모아 홈">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#d4ed85] text-xl font-bold text-[#252c22]">모</span>
-            <span className="text-lg font-semibold tracking-tight">모아</span>
-          </a>
-
-          <div className="my-12 max-w-md">
-            <p className="text-xs font-semibold tracking-[.24em] text-[#d4ed85]">YOUR TEAM, IN MOTION</p>
-            <h1 className="mt-5 text-4xl font-semibold leading-[1.18] tracking-tight sm:text-5xl">
-              생각을 모아,<br />다음 행동으로.
-            </h1>
-            <p className="mt-5 max-w-sm text-sm leading-7 text-white/70 sm:text-base">
-              흩어진 대화는 함께 실행할 계획으로. 모아가 팀의 아이디어와 약속을 기억하고 다음 단계를 이어줍니다.
-            </p>
+        <div className="entry-login-main">
+          <section className="entry-login-copy">
+            <p className="entry-eyebrow">팀 프로젝트를 위한 작은 회의실</p>
+            <h1>조별 과제,<br /><span className="entry-highlight">같이 끝내자.</span></h1>
+            <p className="entry-lead">의견은 한곳에, 할 일은 분명하게.<br />다음 모임까지 챙기는 우리 팀의 공간이에요.</p>
+          </section>
+          <div className="entry-login-preview">
+            <div className="entry-task-paper" aria-label="팀 공간 예시">
+              <div className="entry-paper-head"><strong>이번 주 팀플</strong><span>화면 예시 · 4명</span></div>
+              <div className="entry-paper-row"><span className="entry-paper-check done"><EntryIcon name="check" /></span><span className="entry-paper-task">자료 조사 정리하기<small>의견과 참고 자료 함께 확인</small></span><span className="entry-paper-owner">지민</span><span className="entry-paper-state done">완료</span></div>
+              <div className="entry-paper-row"><span className="entry-paper-check" /><span className="entry-paper-task">발표 자료 초안 만들기<small>다음 모임에서 같이 살펴보기</small></span><span className="entry-paper-owner">수아</span><span className="entry-paper-state">진행 중</span></div>
+              <div className="entry-paper-row"><span className="entry-paper-calendar"><EntryIcon name="calendar-days" /></span><span className="entry-paper-task">다음 모임 시간 정하기<small>가능한 시간에 한 표씩</small></span><span className="entry-paper-owner">모두</span><span className="entry-paper-state">투표 중</span></div>
+            </div>
+            <div className="entry-login-tools"><span>팀 대화</span><i /><span>생각 지도</span><i /><span>할 일</span><i /><span>모임 일정</span></div>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-white/[.06] p-5">
-            <div className="flex items-center justify-between text-xs text-white/55">
-              <span>오늘의 팀 대화</span><span>모아가 정리했어요</span>
-            </div>
-            <div className="mt-4 space-y-3">
-              <div className="flex items-center gap-3 rounded-xl bg-white/[.07] px-4 py-3">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#d4ed85] text-sm text-[#252c22]">✓</span>
-                <div><p className="text-sm font-medium">발표 자료 초안</p><p className="mt-1 text-xs text-white/55">민지 · 금요일까지</p></div>
-              </div>
-              <div className="flex items-center gap-3 rounded-xl bg-white/[.07] px-4 py-3">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f1c8a6] text-sm text-[#252c22]">↗</span>
-                <div><p className="text-sm font-medium">다음 모임 시간 투표</p><p className="mt-1 text-xs text-white/55">팀원 확인 후 확정</p></div>
-              </div>
-            </div>
-          </div>
-        </section>
+          <section className="entry-login-card" aria-labelledby="entry-login-title">
+            {invitation && <p className="entry-invitation">팀에서 초대했어요</p>}
+            <span className="entry-card-mark"><EntryIcon name="circle-user-round" /></span>
+            <h2 id="entry-login-title">우리 팀 회의실로<br />들어가볼까요?</h2>
+            <p className="entry-card-description">{invitation ? "로그인하면 초대받은 팀에 참여할 수 있어요." : "팀의 대화와 할 일을 이어서 확인하세요."}</p>
+            <a className="entry-login-button" href={chatGPTSignInPath(returnTo)} target="_top"><span>ChatGPT 계정으로 로그인</span><EntryIcon name="arrow-up-right" /></a>
+            <p className="entry-signin-note">기존 ChatGPT 계정으로 이용할 수 있어요.</p>
+            <div className="entry-private-note"><EntryIcon name="check" /><p>팀의 대화와 파일은<br />초대된 팀원끼리 확인해요.</p></div>
+            <a className="entry-card-about" href="/landing.html">먼저 둘러보기 <EntryIcon name="arrow-up-right" /></a>
+          </section>
+        </div>
 
-        <section className="flex items-center justify-center p-7 sm:p-12">
-          <div className="w-full max-w-sm">
-            <div className="mb-8 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#eef3df] text-2xl">✳</div>
-            {invitation && <p className="mb-3 inline-flex rounded-full bg-[#eef3df] px-3 py-1.5 text-xs font-medium text-[#52643b]">팀 초대 링크로 오셨군요</p>}
-            <p className="text-sm font-semibold text-[#758064]">다시 만나 반가워요</p>
-            <h2 className="mt-2 text-3xl font-semibold tracking-tight">모아에 로그인</h2>
-            <p className="mt-3 text-sm leading-6 text-[#73776d]">
-              {invitation
-                ? "로그인하면 초대한 팀의 공간으로 이어집니다."
-                : "팀의 대화와 다음 할 일을 이어서 확인해 보세요."}
-            </p>
-
-            <a
-              href={chatGPTSignInPath(returnTo)}
-              target="_top"
-              className="mt-8 flex min-h-14 w-full items-center justify-center gap-3 rounded-xl bg-[#252c22] px-5 py-4 text-sm font-semibold text-white transition hover:bg-[#394334] focus:outline-none focus:ring-4 focus:ring-[#dce7c9]"
-            >
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-sm font-bold text-[#252c22]">↗</span>
-              ChatGPT 계정으로 계속하기
-            </a>
-            <p className="mt-4 text-center text-xs leading-5 text-[#85887e]">안전한 ChatGPT 계정 인증을 사용합니다.</p>
-
-            <div className="my-8 h-px bg-[#ecece4]" />
-            <div className="flex gap-3 rounded-xl bg-[#f5f5ef] p-4">
-              <span className="mt-0.5 text-[#65744f]">♧</span>
-              <p className="text-xs leading-5 text-[#707469]">팀의 대화와 파일은 초대된 팀원만 볼 수 있어요. 모아는 팀의 결정을 대신하지 않습니다.</p>
-            </div>
-
-            <a href="/" className="mt-8 inline-flex text-sm font-medium text-[#62685b] hover:text-[#252c22]">← 모아 소개로 돌아가기</a>
-          </div>
-        </section>
-      </div>
-    </main>
+        <footer className="entry-login-footer"><span>팀플이냐 팀킬이냐</span><p>이번 팀플은, 같이 해보자.</p></footer>
+      </main>
+    </>
   );
 }

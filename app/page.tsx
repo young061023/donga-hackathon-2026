@@ -10,5 +10,5 @@ export default async function Home() {
   }
 
   const signOutPath = encodeURIComponent(chatGPTSignOutPath("/login/"));
-  return <main className="fixed inset-0 bg-[#f6f6f1]"><iframe title="모아 서비스 소개" src={`/landing.html?signout=${signOutPath}`} className="h-full w-full border-0" /></main>;
+  return <main className="fixed inset-0 bg-[#f6f6f1]"><iframe title="팀플이냐 팀킬이냐 서비스 소개" src={`/landing.html?signout=${signOutPath}`} className="h-full w-full border-0" /></main>;
 }

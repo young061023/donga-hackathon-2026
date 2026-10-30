@@ -12,5 +12,5 @@ export default async function Workspace({ searchParams }: { searchParams: Promis
   }
 
   const joinQuery = join ? `?join=${encodeURIComponent(join)}` : "";
-  return <main className="fixed inset-0 bg-[#f7f8f5]"><iframe title="모아 팀 협업 공간" src={`/app.html${joinQuery}`} className="h-full w-full border-0" /></main>;
+  return <main className="fixed inset-0 bg-[#f7f8f5]"><iframe title="팀플이냐 팀킬이냐 팀 회의실" src={`/app.html${joinQuery}`} className="h-full w-full border-0" /></main>;
 }

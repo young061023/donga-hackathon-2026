@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "모아 — 팀의 생각을 모아 다음 행동으로",
-  description: "팀의 대화와 약속을 함께 실행할 계획으로 잇는 AI 조장 모아.",
+  title: "팀플이냐 팀킬이냐 | 팀 프로젝트를 한곳에서",
+  description: "팀의 대화, 할 일과 모임 일정을 한곳에서 정리하는 팀 프로젝트 공간.",
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
+    icon: "/favicon.svg?v=teamplay",
+    shortcut: "/favicon.svg?v=teamplay",
   },
 };
 
