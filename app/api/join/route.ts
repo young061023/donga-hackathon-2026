@@ -3,8 +3,8 @@ import { apiError, persistIdentity, readIdentity } from "../_lib";
 import { teamMembers, teams } from "../../../db/schema";
 
 export async function POST(request: Request) {
-  const identity = readIdentity(request);
-  if (!identity) return apiError("ChatGPT 로그인 후 이용해 주세요.", 401);
+  const identity = await readIdentity(request);
+  if (!identity) return apiError("로그인 후 이용해 주세요.", 401);
   let payload: { inviteCode?: string };
   try { payload = await request.json(); } catch { return apiError("초대 정보가 올바르지 않습니다."); }
   const inviteCode = payload.inviteCode?.trim().toLowerCase();

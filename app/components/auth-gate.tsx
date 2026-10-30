@@ -1,4 +1,4 @@
-import { chatGPTSignInPath } from "../chatgpt-auth";
+import { MemberLogin } from "./member-login";
 
 export function AuthGate({
   returnTo,
@@ -58,15 +58,7 @@ export function AuthGate({
                 : "팀의 대화와 다음 할 일을 이어서 확인해 보세요."}
             </p>
 
-            <a
-              href={chatGPTSignInPath(returnTo)}
-              target="_top"
-              className="mt-8 flex min-h-14 w-full items-center justify-center gap-3 rounded-xl bg-[#252c22] px-5 py-4 text-sm font-semibold text-white transition hover:bg-[#394334] focus:outline-none focus:ring-4 focus:ring-[#dce7c9]"
-            >
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-sm font-bold text-[#252c22]">↗</span>
-              ChatGPT 계정으로 계속하기
-            </a>
-            <p className="mt-4 text-center text-xs leading-5 text-[#85887e]">안전한 ChatGPT 계정 인증을 사용합니다.</p>
+            <MemberLogin returnTo={returnTo} />
 
             <div className="my-8 h-px bg-[#ecece4]" />
             <div className="flex gap-3 rounded-xl bg-[#f5f5ef] p-4">

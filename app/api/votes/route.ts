@@ -3,8 +3,8 @@ import { apiError, isTeamMember, persistIdentity, readIdentity } from "../_lib";
 import { pollOptions, pollVotes, polls } from "../../../db/schema";
 
 export async function POST(request: Request) {
-  const identity = readIdentity(request);
-  if (!identity) return apiError("ChatGPT 로그인 후 이용해 주세요.", 401);
+  const identity = await readIdentity(request);
+  if (!identity) return apiError("로그인 후 이용해 주세요.", 401);
   let payload: { pollId?: string; optionId?: string };
   try { payload = await request.json(); } catch { return apiError("투표 정보가 올바르지 않습니다."); }
   if (!payload.pollId || !payload.optionId) return apiError("선택지를 골라 주세요.");

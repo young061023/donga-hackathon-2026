@@ -10,6 +10,14 @@ import {
 
 const createdAt = () => text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`);
 
+export const DEFAULT_TEAM_RULES = [
+  "팀 채팅과 공지는 24시간 안에 꼭 확인해요.",
+  "바로 답하기 어렵다면 확인 표시를 남기고, 답할 수 있는 시간을 알려요.",
+  "할 일에는 담당자와 마감일을 정하고, 일정이 어려워지면 미리 공유해요.",
+  "모임에 참석하기 어렵다면 미리 알리고, 회의 정리를 확인해요.",
+  "결정한 내용과 최신 파일은 팀 채널에 함께 남겨요.",
+].join("\n");
+
 export const users = sqliteTable("users", {
   id: text("id").primaryKey(),
   email: text("email").notNull(),
@@ -21,6 +29,7 @@ export const teams = sqliteTable("teams", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   inviteCode: text("invite_code").notNull(),
+  rules: text("rules").notNull().default(DEFAULT_TEAM_RULES),
   ownerId: text("owner_id").notNull().references(() => users.id),
   createdAt: createdAt(),
 }, (table) => [uniqueIndex("teams_invite_code_uq").on(table.inviteCode)]);
@@ -119,3 +128,26 @@ export const workStatuses = sqliteTable("work_statuses", {
   status: text("status").notNull().default("available"),
   updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 }, (table) => [primaryKey({ columns: [table.teamId, table.userId] })]);
+
+export const accounts = sqliteTable("accounts", {
+  userId: text("user_id").primaryKey().references(() => users.id),
+  email: text("email").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  onlineEnabled: integer("online_enabled", { mode: "boolean" }).notNull().default(true),
+});
+
+export const userPresence = sqliteTable("user_presence", {
+  userId: text("user_id").primaryKey().references(() => users.id),
+  lastSeenAt: integer("last_seen_at").notNull(),
+});
+
+export const sessions = sqliteTable("sessions", {
+  tokenHash: text("token_hash").primaryKey(),
+  userId: text("user_id").notNull().references(() => users.id),
+  expiresAt: integer("expires_at").notNull(),
+}, (table) => [index("sessions_expiry_idx").on(table.expiresAt)]);
+export const authAttempts = sqliteTable("auth_attempts", {
+  key: text("key").primaryKey(),
+  count: integer("count").notNull(),
+  expiresAt: integer("expires_at").notNull(),
+});

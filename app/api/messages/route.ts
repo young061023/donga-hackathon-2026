@@ -1,8 +1,7 @@
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { apiError, isTeamMember, newId, persistIdentity, readIdentity } from "../_lib";
 import { channels, messages, tasks, teamMembers, users } from "../../../db/schema";
 
-const ideaWords = /아이디어|제안|생각|추천|만들|시도|방법|지도|기획|해보/;
 const commitmentWords = [
   "하겠습니다", "하겠어요", "할게요", "할게", "해보겠습니다", "해볼게요", "해볼게",
   "맡겠습니다", "맡을게요", "맡을게", "준비하겠습니다", "준비할게요", "준비할게",
@@ -57,10 +56,10 @@ function extractTask(body: string, identity: { id: string }, members: Array<{ id
 }
 
 export async function POST(request: Request) {
-  const identity = readIdentity(request);
-  if (!identity) return apiError("ChatGPT 로그인 후 이용해 주세요.", 401);
+  const identity = await readIdentity(request);
+  if (!identity) return apiError("로그인 후 이용해 주세요.", 401);
 
-  let payload: { teamId?: string; channelId?: string; body?: string };
+  let payload: { teamId?: string; channelId?: string; body?: string; parentMessageId?: string };
   try {
     payload = await request.json();
   } catch {
@@ -80,6 +79,17 @@ export async function POST(request: Request) {
       .orderBy(asc(channels.createdAt)).limit(1);
     if (!channel) return apiError("대화 채널을 찾을 수 없습니다.", 404);
 
+    let parentMessageId: string | null = null;
+    if (payload.parentMessageId) {
+      if (typeof payload.parentMessageId !== "string") return apiError("연결할 아이디어가 올바르지 않습니다.");
+      const [parent] = await db.select({ id: messages.id }).from(messages).where(and(
+        eq(messages.id, payload.parentMessageId), eq(messages.teamId, teamId),
+        eq(messages.channelId, channel.id), eq(messages.authorType, "user"),
+      )).limit(1);
+      if (!parent) return apiError("같은 채널의 아이디어에만 연결할 수 있습니다.");
+      parentMessageId = parent.id;
+    }
+
     const messageId = newId("msg");
     await db.insert(messages).values({
       id: messageId,
@@ -87,13 +97,13 @@ export async function POST(request: Request) {
       channelId: channel.id,
       authorId: identity.id,
       authorType: "user",
+      sourceMessageId: parentMessageId,
       body,
     });
 
     const members = await db.select({ id: users.id, name: users.displayName, joinedAt: teamMembers.joinedAt })
       .from(teamMembers).innerJoin(users, eq(users.id, teamMembers.userId))
       .where(eq(teamMembers.teamId, teamId)).orderBy(asc(teamMembers.joinedAt));
-    const otherMembers = members.filter((member) => member.id !== identity.id);
     const inferredTask = extractTask(body, identity, members);
     if (inferredTask) {
       await db.insert(tasks).values({
@@ -106,58 +116,19 @@ export async function POST(request: Request) {
         sourceMessageId: messageId,
       });
     }
-    let assistantBody = "";
-    let sourceMessageId: string | null = null;
-
+    let assistantId: string | null = null;
     if (inferredTask) {
-      assistantBody = `대화에서 할 일을 찾아 목록에 자동으로 추가했어요: “${inferredTask.title}”${inferredTask.assigneeName ? ` · ${inferredTask.assigneeName}님 담당` : inferredTask.assigneeId === identity.id ? " · 나에게 배정" : " · 담당자 미지정"}${inferredTask.dueText ? ` · ${inferredTask.dueText}` : ""}.`;
-    } else if (otherMembers.length === 0) {
-      assistantBody = "팀원을 초대해 주세요. 팀원이 참여하면 이름을 불러 의견을 묻고, 나온 생각을 함께 이어갈게요.";
-    } else {
-      const recent = await db.select({ id: messages.id, authorId: messages.authorId, authorType: messages.authorType, body: messages.body })
-        .from(messages).where(eq(messages.teamId, teamId)).orderBy(desc(messages.createdAt)).limit(40);
-      const ideaContribution = recent.find((message) =>
-        message.authorType === "user" && message.authorId && message.authorId !== identity.id && ideaWords.test(message.body),
-      );
-
-      if (ideaContribution?.authorId) {
-        const contributor = otherMembers.find((member) => member.id === ideaContribution.authorId);
-        if (contributor) {
-          const quote = ideaContribution.body.length > 52 ? `${ideaContribution.body.slice(0, 52)}…` : ideaContribution.body;
-          assistantBody = `${contributor.name}님, 앞서 “${quote}”라고 제안해 주셨죠. 그 생각을 더 구체화한다면 무엇부터 해볼 수 있을까요?`;
-          sourceMessageId = ideaContribution.id;
-        }
-      }
-
-      if (!assistantBody) {
-        const counts = new Map<string, number>();
-        for (const message of recent) {
-          if (message.authorType === "user" && message.authorId) counts.set(message.authorId, (counts.get(message.authorId) ?? 0) + 1);
-        }
-        const quietest = [...otherMembers].sort((a, b) =>
-          (counts.get(a.id) ?? 0) - (counts.get(b.id) ?? 0) || a.joinedAt.localeCompare(b.joinedAt),
-        )[0];
-        assistantBody = `${quietest.name}님, 이번 의견에 당신의 관점도 듣고 싶어요. 가장 중요하다고 느낀 점이나 보완할 점을 하나 들려주실래요?`;
-      }
+      assistantId = newId("msg");
+      const assistantBody = `대화에서 할 일을 찾아 목록에 자동으로 추가했어요: “${inferredTask.title}”${inferredTask.assigneeName ? ` · ${inferredTask.assigneeName}님 담당` : inferredTask.assigneeId === identity.id ? " · 나에게 배정" : " · 담당자 미지정"}${inferredTask.dueText ? ` · ${inferredTask.dueText}` : ""}.`;
+      await db.insert(messages).values({ id: assistantId, teamId, channelId: channel.id, authorId: null, authorType: "assistant", body: assistantBody });
     }
-
-    const assistantId = newId("msg");
-    await db.insert(messages).values({
-      id: assistantId,
-      teamId,
-      channelId: channel.id,
-      authorId: null,
-      authorType: "assistant",
-      sourceMessageId,
-      body: assistantBody,
-    });
 
     const [savedUserMessage] = await db.select({ id: messages.id, channelId: messages.channelId, authorId: messages.authorId, authorType: messages.authorType, sourceMessageId: messages.sourceMessageId, body: messages.body, createdAt: messages.createdAt, authorName: users.displayName })
       .from(messages).leftJoin(users, eq(users.id, messages.authorId)).where(eq(messages.id, messageId)).limit(1);
-    const [savedAssistantMessage] = await db.select({ id: messages.id, channelId: messages.channelId, authorId: messages.authorId, authorType: messages.authorType, sourceMessageId: messages.sourceMessageId, body: messages.body, createdAt: messages.createdAt, authorName: users.displayName })
-      .from(messages).leftJoin(users, eq(users.id, messages.authorId)).where(eq(messages.id, assistantId)).limit(1);
+    const savedAssistantMessage = assistantId ? await db.select({ id: messages.id, channelId: messages.channelId, authorId: messages.authorId, authorType: messages.authorType, sourceMessageId: messages.sourceMessageId, body: messages.body, createdAt: messages.createdAt, authorName: users.displayName })
+      .from(messages).leftJoin(users, eq(users.id, messages.authorId)).where(eq(messages.id, assistantId)).limit(1).then(rows => rows[0]) : null;
 
-    return Response.json({ messages: [savedUserMessage, savedAssistantMessage], taskAdded: Boolean(inferredTask) }, { status: 201, headers: { "Cache-Control": "no-store" } });
+    return Response.json({ messages: savedAssistantMessage ? [savedUserMessage, savedAssistantMessage] : [savedUserMessage], taskAdded: Boolean(inferredTask), needsLeaderProposal: !inferredTask, messageId }, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("message create failed", error);
     return apiError("메시지를 저장하지 못했습니다.", 500);

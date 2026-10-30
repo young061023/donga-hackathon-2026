@@ -2,8 +2,8 @@ import { apiError, newId, newInviteCode, persistIdentity, readIdentity } from ".
 import { channels, teamMembers, teams } from "../../../db/schema";
 
 export async function POST(request: Request) {
-  const identity = readIdentity(request);
-  if (!identity) return apiError("ChatGPT 로그인 후 이용해 주세요.", 401);
+  const identity = await readIdentity(request);
+  if (!identity) return apiError("로그인 후 이용해 주세요.", 401);
   let payload: { name?: string };
   try { payload = await request.json(); } catch { return apiError("팀 정보가 올바르지 않습니다."); }
   const name = payload.name?.trim();

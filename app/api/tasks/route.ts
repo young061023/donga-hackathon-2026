@@ -3,8 +3,8 @@ import { apiError, isTeamMember, newId, persistIdentity, readIdentity } from "..
 import { teamMembers, tasks } from "../../../db/schema";
 
 export async function POST(request: Request) {
-  const identity = readIdentity(request);
-  if (!identity) return apiError("ChatGPT 로그인 후 이용해 주세요.", 401);
+  const identity = await readIdentity(request);
+  if (!identity) return apiError("로그인 후 이용해 주세요.", 401);
   let payload: { teamId?: string; title?: string; assigneeId?: string | null; dueText?: string | null };
   try { payload = await request.json(); } catch { return apiError("할 일 정보가 올바르지 않습니다."); }
   const teamId = payload.teamId?.trim();
@@ -27,8 +27,8 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const identity = readIdentity(request);
-  if (!identity) return apiError("ChatGPT 로그인 후 이용해 주세요.", 401);
+  const identity = await readIdentity(request);
+  if (!identity) return apiError("로그인 후 이용해 주세요.", 401);
   let payload: { taskId?: string; status?: string };
   try { payload = await request.json(); } catch { return apiError("할 일 정보가 올바르지 않습니다."); }
   const taskId = payload.taskId?.trim();

@@ -5,8 +5,8 @@ import { workStatuses } from "../../../db/schema";
 const allowed = new Set(["available", "needs_adjustment", "away"]);
 
 export async function PUT(request: Request) {
-  const identity = readIdentity(request);
-  if (!identity) return apiError("ChatGPT 로그인 후 이용해 주세요.", 401);
+  const identity = await readIdentity(request);
+  if (!identity) return apiError("로그인 후 이용해 주세요.", 401);
   let payload: { teamId?: string; status?: string };
   try { payload = await request.json(); } catch { return apiError("업무 상태가 올바르지 않습니다."); }
   if (!payload.teamId || !payload.status || !allowed.has(payload.status)) return apiError("업무 상태를 선택해 주세요.");

@@ -1,3 +1,4 @@
+import { sessionIdentity } from "../../lib/session";
 import { and, eq } from "drizzle-orm";
 import { getDb } from "../../db";
 import { teamMembers, users } from "../../db/schema";
@@ -8,22 +9,8 @@ export type Identity = {
   displayName: string;
 };
 
-export function readIdentity(request: Request): Identity | null {
-  const id = request.headers.get("oai-authenticated-user-id");
-  const email = request.headers.get("oai-authenticated-user-email");
-  if (!id || !email) return null;
-
-  const encodedName = request.headers.get("oai-authenticated-user-full-name");
-  const fullName = request.headers.get("oai-authenticated-user-full-name-encoding");
-  let displayName = email.split("@")[0] || "팀원";
-  if (encodedName && fullName === "percent-encoded-utf-8") {
-    try {
-      displayName = decodeURIComponent(encodedName);
-    } catch {
-      displayName = email.split("@")[0] || "팀원";
-    }
-  }
-  return { id, email, displayName };
+export async function readIdentity(request: Request): Promise<Identity | null> {
+  return sessionIdentity(request.headers.get("cookie"));
 }
 
 export async function persistIdentity(identity: Identity) {

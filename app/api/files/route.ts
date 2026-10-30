@@ -37,8 +37,8 @@ function contentTypeFor(file: File) {
 }
 
 export async function POST(request: Request) {
-  const identity = readIdentity(request);
-  if (!identity) return apiError("ChatGPT 로그인 후 이용해 주세요.", 401);
+  const identity = await readIdentity(request);
+  if (!identity) return apiError("로그인 후 이용해 주세요.", 401);
   const bucket = env.BUCKET;
   if (!bucket) return apiError("파일 저장소가 아직 연결되지 않았습니다.", 503);
   const declaredLength = Number(request.headers.get("content-length") ?? 0);

@@ -2,8 +2,8 @@ import { apiError, isTeamMember, newId, persistIdentity, readIdentity } from "..
 import { pollOptions, polls } from "../../../db/schema";
 
 export async function POST(request: Request) {
-  const identity = readIdentity(request);
-  if (!identity) return apiError("ChatGPT 로그인 후 이용해 주세요.", 401);
+  const identity = await readIdentity(request);
+  if (!identity) return apiError("로그인 후 이용해 주세요.", 401);
   let payload: { teamId?: string; title?: string; options?: string[]; closesAt?: string | null };
   try { payload = await request.json(); } catch { return apiError("투표 정보가 올바르지 않습니다."); }
   const teamId = payload.teamId?.trim();

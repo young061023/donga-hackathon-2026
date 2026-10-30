@@ -1,6 +1,6 @@
-import { asc, eq, inArray } from "drizzle-orm";
+import { asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { apiError, newId, newInviteCode, persistIdentity, readIdentity } from "../_lib";
-import { channels, files, messages, pollOptions, pollVotes, polls, teamMembers, teams, tasks, users, workStatuses } from "../../../db/schema";
+import { accounts, channels, files, messages, pollOptions, pollVotes, polls, teamMembers, teams, tasks, users, userPresence, workStatuses } from "../../../db/schema";
 
 async function stableDefaultTeamId(userId: string) {
   const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(userId));
@@ -9,8 +9,8 @@ async function stableDefaultTeamId(userId: string) {
 }
 
 export async function GET(request: Request) {
-  const identity = readIdentity(request);
-  if (!identity) return apiError("ChatGPT 로그인 후 이용해 주세요.", 401);
+  const identity = await readIdentity(request);
+  if (!identity) return apiError("로그인 후 이용해 주세요.", 401);
 
   try {
     const db = await persistIdentity(identity);
@@ -18,6 +18,7 @@ export async function GET(request: Request) {
       id: teams.id,
       name: teams.name,
       inviteCode: teams.inviteCode,
+      rules: teams.rules,
       role: teamMembers.role,
     }).from(teamMembers)
       .innerJoin(teams, eq(teams.id, teamMembers.teamId))
@@ -33,6 +34,7 @@ export async function GET(request: Request) {
         id: teams.id,
         name: teams.name,
         inviteCode: teams.inviteCode,
+        rules: teams.rules,
         role: teamMembers.role,
       }).from(teamMembers)
         .innerJoin(teams, eq(teams.id, teamMembers.teamId))
@@ -45,10 +47,10 @@ export async function GET(request: Request) {
 
     const [teamChannels, members, teamMessages, teamTasks, teamPolls, statusRows] = await Promise.all([
       db.select().from(channels).where(eq(channels.teamId, team.id)).orderBy(asc(channels.createdAt)),
-      db.select({ id: users.id, displayName: users.displayName, email: users.email, role: teamMembers.role })
-        .from(teamMembers).innerJoin(users, eq(users.id, teamMembers.userId)).where(eq(teamMembers.teamId, team.id)),
+      db.select({ id: users.id, displayName: users.displayName, email: users.email, role: teamMembers.role, onlineEnabled: accounts.onlineEnabled, lastSeenAt: userPresence.lastSeenAt })
+        .from(teamMembers).innerJoin(users, eq(users.id, teamMembers.userId)).leftJoin(accounts, eq(accounts.userId, users.id)).leftJoin(userPresence, eq(userPresence.userId, users.id)).where(eq(teamMembers.teamId, team.id)),
       db.select({ id: messages.id, channelId: messages.channelId, authorId: messages.authorId, authorType: messages.authorType, sourceMessageId: messages.sourceMessageId, fileId: messages.fileId, fileName: files.originalName, fileContentType: files.contentType, fileSize: files.size, body: messages.body, createdAt: messages.createdAt, authorName: users.displayName })
-        .from(messages).leftJoin(users, eq(users.id, messages.authorId)).leftJoin(files, eq(files.id, messages.fileId)).where(eq(messages.teamId, team.id)).orderBy(asc(messages.createdAt)).limit(100),
+        .from(messages).leftJoin(users, eq(users.id, messages.authorId)).leftJoin(files, eq(files.id, messages.fileId)).where(eq(messages.teamId, team.id)).orderBy(desc(messages.createdAt), desc(sql`${messages}.rowid`)).limit(100),
       db.select({ id: tasks.id, title: tasks.title, assigneeId: tasks.assigneeId, assigneeName: users.displayName, createdBy: tasks.createdBy, status: tasks.status, dueText: tasks.dueText, sourceMessageId: tasks.sourceMessageId, createdAt: tasks.createdAt })
         .from(tasks).leftJoin(users, eq(users.id, tasks.assigneeId)).where(eq(tasks.teamId, team.id)).orderBy(asc(tasks.createdAt)),
       db.select().from(polls).where(eq(polls.teamId, team.id)).orderBy(asc(polls.createdAt)).limit(20),
@@ -67,8 +69,12 @@ export async function GET(request: Request) {
       teams: memberships,
       team: { id: team.id, name: team.name, inviteCode: team.inviteCode, role: team.role },
       channels: teamChannels,
-      members,
-      messages: teamMessages,
+      members: members.map(({ onlineEnabled, lastSeenAt, ...member }) => ({
+        ...member,
+        online: Boolean(onlineEnabled && lastSeenAt && Date.now() - lastSeenAt < 45_000),
+        presenceMode: onlineEnabled ? "online" : "offline",
+      })),
+      messages: teamMessages.reverse(),
       tasks: teamTasks,
       polls: teamPolls.map((poll) => ({
         ...poll,
